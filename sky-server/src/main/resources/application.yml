@@ -3,6 +3,7 @@ server:
 
 spring:
   profiles:
+    # 激活dev环境
     active: dev
   main:
     allow-circular-references: true
@@ -38,3 +39,9 @@ sky:
     admin-ttl: 7200000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
+  qiniu:
+    oss:
+      access-key: ${sky.qiniu.oss.access-key}
+      secret-key: ${sky.qiniu.oss.secret-key}
+      bucket: ${sky.qiniu.oss.bucket}
+      domain: ${sky.qiniu.oss.domain}

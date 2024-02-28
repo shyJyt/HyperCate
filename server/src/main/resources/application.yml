@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    # 激活dev环境
+    active: dev
+  main:
+    allow-circular-references: true
+  datasource:
+    druid:
+      driver-class-name: ${ctrlacv.datasource.driver-class-name}
+      url: jdbc:mysql://${ctrlacv.datasource.host}:${ctrlacv.datasource.port}/${ctrlacv.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${ctrlacv.datasource.username}
+      password: ${ctrlacv.datasource.password}
+    redis:
+      host: ${ctrlacv.redis.host}
+      port: ${ctrlacv.redis.port}
+      database: ${ctrlacv.redis.database}
+
+
+mybatis:
+  #mapper配置文件
+  mapper-locations: classpath:mapper/*.xml
+  # 实体类别名包
+  type-aliases-package: org.ctrlacv.entity
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com:
+      ctrlacv:
+        mapper: debug
+        service: info
+        controller: info
+
+ctrlacv:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: itcast
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+  qiniu:
+    oss:
+      access-key: ${ctrlacv.qiniu.oss.access-key}
+      secret-key: ${ctrlacv.qiniu.oss.secret-key}
+      bucket: ${ctrlacv.qiniu.oss.bucket}
+      domain: ${ctrlacv.qiniu.oss.domain}

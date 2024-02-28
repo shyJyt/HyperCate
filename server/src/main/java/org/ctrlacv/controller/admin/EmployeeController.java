@@ -11,10 +11,20 @@ import org.ctrlacv.result.Result;
 import org.ctrlacv.service.EmployeeService;
 import org.ctrlacv.utils.JwtUtil;
 import org.ctrlacv.vo.EmployeeLoginVO;
-import io.swagger.annotations.ApiOperation;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +35,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/employee")
 @Slf4j
-//@Api(tags = "员工管理")
+@Tag(name = "EmployeeController", description = "员工管理")
 public class EmployeeController {
 
     @Autowired
@@ -39,14 +49,17 @@ public class EmployeeController {
      * @param employeeLoginDTO
      * @return
      */
-    @ApiOperation("员工登录")
+    @Operation(summary = "登录")
+    @Parameters({
+            @Parameter(name = "employeeLoginDTO", description = "登录信息", required = true)
+    })
     @PostMapping("/login")
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
         log.info("员工登录：{}", employeeLoginDTO);
 
         Employee employee = employeeService.login(employeeLoginDTO);
 
-        //登录成功后，生成jwt令牌
+        // 登录成功后，生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
         String token = JwtUtil.createJWT(
@@ -69,63 +82,74 @@ public class EmployeeController {
      *
      * @return
      */
-    @ApiOperation("员工退出登录")
     @PostMapping("/logout")
     public Result<String> logout() {
         return Result.success();
     }
 
-
     /**
-     * 添加员工
+     * 新增
      *
      * @param employeeDTO
      * @return
      */
-    @PostMapping()
-    @ApiOperation("添加员工")
-    public Result save(@RequestBody EmployeeDTO employeeDTO) {
+    @PostMapping
+    public Result<String> save(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("新增员工：{}", employeeDTO);
         employeeService.save(employeeDTO);
         return Result.success();
     }
 
     /**
      * 员工分页查询
-     *
+     * 
      * @param employeePageQueryDTO
-     * @return
+     * 
+     * @return Result<PageResult<Employee>>
      */
     @GetMapping("/page")
-    @ApiOperation("员工分页查询")
-    public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO) {
-        log.info("员工分页查询：{}", employeePageQueryDTO);
-        PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
-        return Result.success(pageResult);
+    public Result<PageResult<Employee>> page(EmployeePageQueryDTO employeePageQueryDTO) {
+        log.info("分页查询员工：{}", employeePageQueryDTO);
+        PageResult<Employee> pageQueryData = employeeService.pageQuery(employeePageQueryDTO);
+        return Result.success(pageQueryData);
     }
 
     /**
-     * 启用或停用
-     * @param id
+     * 启用/禁用
+     * 
      * @param status
-     * @return
+     * @param id
+     * @return Result<String>
      */
     @PostMapping("/status/{status}")
-    @ApiOperation("启用或停用员工账号")
-    public Result startOrStop(Long id, @PathVariable Integer status) {
-        employeeService.startOrStop(id, status);
+    public Result<String> startOrStop(@PathVariable Integer status, long id) {
+        log.info("员工启用/禁用：{}, {}", status, id);
+        employeeService.startOrStop(status, id);
         return Result.success();
     }
 
+    /**
+     * 根据id查询员工
+     * 
+     * @param id
+     * @return Result<Employee>
+     */
     @GetMapping("/{id}")
-    @ApiOperation("根据id查询员工")
-    public Result<Employee> getById(@PathVariable Long id) {
+    public Result<Employee> getById(@PathVariable long id) {
+        log.info("根据id查询员工：{}", id);
         Employee employee = employeeService.getById(id);
         return Result.success(employee);
     }
 
-    @PutMapping()
-    @ApiOperation("编辑员工")
-    public Result update(@RequestBody EmployeeDTO employeeDTO) {
+    /**
+     * 修改
+     * 
+     * @param employeeDTO
+     * @return Result<String>
+     */
+    @PutMapping
+    public Result<String> update(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("修改员工：{}", employeeDTO);
         employeeService.update(employeeDTO);
         return Result.success();
     }
